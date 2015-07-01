@@ -1,0 +1,148 @@
+<!doctype html>
+<html>
+<head>
+  <title>Deployment Example</title>
+  <meta charset="utf-8"/>
+  <link rel="stylesheet" href="railscasts.css">
+  <script src="highlight.pack.js"></script>
+  <style>
+    body {
+      font-family: monospace;
+      font-size:   22px;
+      background-color: #ddd;
+      color: #123;
+      padding: 3em;
+    }
+    pre {
+      margin: 2em;
+    }
+  </style>
+</head>
+<body>
+
+<h2>1. Create a text file to list all the module "modifications" in the PIR:</h2>
+
+<pre class="hljs">
+vi PIR_TEST001
+</pre>
+
+<pre class="hljs">
+bin/job0001
+source/cobol/job0001.cbl
+source/sql/job0001_step0010.sql
+source/sql/job0001_step0020.sql
+source/sql/job0001_step0030.sql
+source/cards/store_list.xml
+</pre>
+
+<h2>2. Run the interactive setup script:</h2>
+<pre class="hljs">
+scm_prepare -a modify -i PIR_TEST001
+</pre>
+
+<pre class="hljs">
+No previous XML file found. Starting from scratch.
+PIR description: Testing a change
+PIR requestor: Ryan McDonald
+</pre>
+
+<pre class="hljs">
+Here are the changes so far:
+######################### PIR_TEST001 #########################
+
+Requestor:      Ryan McDonald
+Description:    Testing a change
+
+modify          bin/job0001
+modify          source/cards/store_list.xml
+modify          source/cobol/job0001.cbl
+modify          source/sql/job0001_step0010.sql
+modify          source/sql/job0001_step0020.sql
+modify          source/sql/job0001_step0030.sql
+
+######################### PIR_TEST001 #########################
+
+Is this OK? [y/N] y
+</pre>
+
+<h2>3. Repeat step 1 for the "deletions" from the PIR:</h2>
+
+<pre class="hljs">
+vi PIR_TEST001
+</pre>
+<pre class="hljs">
+bin/job0000
+source/cobol/job0000.cbl
+</pre>
+
+<h2>4. Run the interactive setup script again, specifying the "delete" action</h2>
+<pre class="hljs">
+scm_prepare -a delete -i PIR_TEST001
+</pre>
+
+<h2>... hit ENTER to keep existing PIR info:</h2>
+<pre class="hljs">
+Loading previous XML file:     PIR_TEST001.xml
+
+Found previous description:    "Testing a change"
+
+Type a description to change or hit enter to keep it:
+
+Found previous requestor:    "Ryan McDonald"
+
+Type a requestor to change or hit enter to keep it:
+</pre>
+
+<h2>... verify the changes:</h2>
+<pre class="hljs">
+Here are the changes so far:
+######################### PIR_TEST001 #########################
+
+Requestor:      Ryan McDonald
+Description:    Testing a change
+
+delete          bin/job0000
+delete          source/cobol/job0000.cbl
+
+modify          bin/job0001
+modify          source/cards/store_list.xml
+modify          source/cobol/job0001.cbl
+modify          source/sql/job0001_step0010.sql
+modify          source/sql/job0001_step0020.sql
+modify          source/sql/job0001_step0030.sql
+
+######################### PIR_TEST001 #########################
+
+Is this OK? [y/N] y
+</pre>
+
+<h2>Now we have an input file for the non-interactive deployment program:</h2>
+
+<pre class="hljs">
+  view PIR_TEST001.xml
+</pre>
+
+<pre><code class="xml">&lt;PIR_TEST001&gt;
+    &lt;description&gt;Testing a change&lt;/description&gt;
+    &lt;module action=&quot;delete&quot;&gt;bin/job0000&lt;/module&gt;
+    &lt;module action=&quot;modify&quot;&gt;bin/job0001&lt;/module&gt;
+    &lt;module action=&quot;modify&quot;&gt;source/cards/store_list.xml&lt;/module&gt;
+    &lt;module action=&quot;delete&quot;&gt;source/cobol/job0000.cbl&lt;/module&gt;
+    &lt;module action=&quot;modify&quot;&gt;source/cobol/job0001.cbl&lt;/module&gt;
+    &lt;module action=&quot;modify&quot;&gt;source/sql/job0001_step0010.sql&lt;/module&gt;
+    &lt;module action=&quot;modify&quot;&gt;source/sql/job0001_step0020.sql&lt;/module&gt;
+    &lt;module action=&quot;modify&quot;&gt;source/sql/job0001_step0030.sql&lt;/module&gt;
+    &lt;requestor&gt;Ryan McDonald&lt;/requestor&gt;
+  &lt;/PIR_TEST001&gt;
+</code></pre>
+
+<h2>To run the implementation (manually or scheduled):</h2>
+
+<pre class="hljs">
+  scmj -i PIR_TEST001.xml -p ipm
+</pre>
+
+
+</body>
+<script>hljs.initHighlightingOnLoad();</script>
+</html>
